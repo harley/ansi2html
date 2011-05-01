@@ -14,9 +14,11 @@ module ANSI2HTML
       '37' => 'white',
       '90' => 'grey'
     }
+    attr_reader :envelope
     
     def self.execute
-      new(STDIN.read, STDOUT, ARGV.index('--envelope'), ARGV.index('--dark'))
+      @envelope = ARGV.index '--envelope'
+      new(STDIN.read, STDOUT, @envelope, ARGV.index('--dark'))
     end
 
     def initialize(ansi, out, envelope=false, dark=false)
@@ -62,7 +64,7 @@ module ANSI2HTML
       end
 
       if dark
-        out.puts "<div style='background-color: #111;padding:10px; color:#efefef'>"
+        out.puts "<div style='background-color:#111; padding:10px; color:#efefef'>"
       end
 
       ansi.gsub! /&/, "&amp;"
@@ -98,7 +100,9 @@ module ANSI2HTML
     end
 
     def opening_tag color
-      %{<span class="#{color}" style="#{to_css color}">}
+      # inline styling if not using envelope mode
+      style_attribute = envelope ? "" : " style='#{to_css color}'"
+      %{<span class="#{color}"#{style_attribute}>}
     end
 
     def closing_tag

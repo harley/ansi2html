@@ -32,3 +32,7 @@ I don't promote my own art because I am an artist).
 Send me a pull request if you fixed something. This will get you started (after you install ruby):
 
   gem install bundler && bundle install && rspec spec
+
+== Resources
+Bash script showing an ANSI terminal color chart
+http://codesnippets.joyent.com/posts/show/1517
