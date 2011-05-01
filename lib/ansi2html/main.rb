@@ -16,10 +16,10 @@ module ANSI2HTML
     }
     
     def self.execute
-      new(STDIN.read, STDOUT, ARGV.index('--envelope'))
+      new(STDIN.read, STDOUT, ARGV.index('--envelope'), ARGV.index('--dark'))
     end
 
-    def initialize(ansi, out, envelope=false)
+    def initialize(ansi, out, envelope=false, dark=false)
       if(envelope)
         out.print %{<!doctype html>
 <html>
@@ -60,6 +60,11 @@ module ANSI2HTML
 </head>
 <body><pre><code>}
       end
+
+      if dark
+        out.puts "<div style='background-color: #111;padding:10px; color:#efefef'>"
+      end
+
       ansi.gsub! /&/, "&amp;"
       ansi.gsub! /</, "&lt;"
       ansi.gsub! />/, "&gt;"
@@ -67,7 +72,7 @@ module ANSI2HTML
       tags_opened = 0
       while(!s.eos?)
         if s.scan(/\e\[(3[0-7]|90|1)m/)
-          out.print(%{<span class="#{COLOR[s[1]]}">})
+          out.print(opening_tag COLOR[s[1]])
           tags_opened += 1
         else
           if s.scan(/\e\[0?m/)
@@ -83,8 +88,29 @@ module ANSI2HTML
         end
       end
 
+      if dark
+        out.print "</div>" 
+      end
+
       if(envelope)
         out.print %{</code></pre></body></html>}
+      end
+    end
+
+    def opening_tag color
+      %{<span class="#{color}" style="#{to_css color}">}
+    end
+
+    def closing_tag
+      "</span>" 
+    end
+
+    def to_css(color)
+      case color
+      when 'bold'
+        "font-weight:bold"
+      else
+        "color:#{color}" 
       end
     end
   end
