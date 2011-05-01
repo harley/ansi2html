@@ -60,17 +60,20 @@ module ANSI2HTML
 </head>
 <body><pre><code>}
       end
+      ansi.gsub! /&/, "&amp;"
+      ansi.gsub! /</, "&lt;"
+      ansi.gsub! />/, "&gt;"
       s = StringScanner.new(ansi)
-      tag_opened = true
+      tags_opened = 0
       while(!s.eos?)
         if s.scan(/\e\[(3[0-7]|90|1)m/)
           out.print(%{<span class="#{COLOR[s[1]]}">})
-          tag_opened = true
+          tags_opened += 1
         else
           if s.scan(/\e\[0?m/)
-            if tag_opened
+            if tags_opened > 0
               out.print(%{</span>})
-              tag_opened = false
+              tags_opened -= 1
             else
               out.print('')
             end

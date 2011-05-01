@@ -38,5 +38,18 @@ module ANSI2HTML
       Main.new("\e[37m\e[1mHello\e[0m\e[0m", out)
       out.string.should == '<span class="white"><span class="bold">Hello</span></span>'
     end
+
+    it "should preserve < and > properly" do
+      out = StringIO.new
+      Main.new "\e[31mEmail me at Foo Bar <foo@bar.com>\e[0m", out
+      out.string.should == '<span class="red">Email me at Foo Bar &lt;foo@bar.com&gt;</span>'
+    end
+
+    it "should escape html in code" do
+      out = StringIO.new
+      Main.new "\e[31m<h1 class='special' id=\"unique\">My title</h1>\e[0m", out
+      out.string.should == "<span class=\"red\">&lt;h1 class='special' id=\"unique\"&gt;My title&lt;/h1&gt;</span>"
+      
+    end
   end
 end
