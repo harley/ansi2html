@@ -61,12 +61,19 @@ module ANSI2HTML
 <body><pre><code>}
       end
       s = StringScanner.new(ansi)
+      tag_opened = true
       while(!s.eos?)
         if s.scan(/\e\[(3[0-7]|90|1)m/)
           out.print(%{<span class="#{COLOR[s[1]]}">})
+          tag_opened = true
         else
-          if s.scan(/\e\[0m/)
-            out.print(%{</span>})
+          if s.scan(/\e\[0?m/)
+            if tag_opened
+              out.print(%{</span>})
+              tag_opened = false
+            else
+              out.print('')
+            end
           else
             out.print(s.scan(/./m))
           end
